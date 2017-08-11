@@ -45,3 +45,7 @@ add_psi4_plugin(resp2 src/dotsphere.cc
 target_include_directories(resp2 PRIVATE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>)
 
 target_link_libraries(resp2 PRIVATE "${NLOPT_LIBRARIES}")
+
+# may be needed
+#find_package(Boost REQUIRED)
+#target_include_directories(resp2 ${Boost_INCLUDE_DIRS})
