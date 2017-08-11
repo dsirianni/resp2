@@ -42,6 +42,24 @@ Installation
 4. Checkout this repository and run `./configure; make` in this directory
 5. Run `psi4` in this directory to run the example input file.
 
+CMake Installation
+------------------
+1. Install psi4 using conda
+   * `conda install psi4 -c psi4/label/dev -c psi4`
+   * This requires having the Anaconda or Miniconda Python distribution installed.
+   * See http://www.psicode.org/psi4manual/master/conda.html#how-to-install-a-psi4-binary-into-an-ana-miniconda-distribution
+   * You'll need psi4 >= 1.1
+2. You'll need to install the nlopt library and its development headers
+   * `conda install nlopt -c conda-forge`
+   * If CMake doesn't find it, pass `cmake ... -DNLOPT_PREFIX=${CONDA_PREFIX}`
+3. You need a C++11-capable compiler
+   * psi4 plugin machinery should take care of this, as the g++ distributed w/psi4 works just fine
+4. Checkout this repository
+   * Run `psi4 --plugin-compile` in this directory.
+   * Run the resulting line, adding any other options you like
+   * Run `make`
+5. Run `python input.py` in this directory to run the example PsiAPI input file.
+
 Example
 -------
 See the [build log](https://travis-ci.org/rmcgibbo/resp2) on Travis-CI.

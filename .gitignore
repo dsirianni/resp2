@@ -5,3 +5,7 @@
 output.dat
 Makefile
 timer.dat
+
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
