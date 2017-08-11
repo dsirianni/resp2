@@ -1,29 +1,21 @@
-#include "Python.h"
-#include <stdio.h>
-#include <libplugin/plugin.h>
-#include <psi4-dec.h>
-#include <libparallel/parallel.h>
-#include <liboptions/liboptions.h>
-#include <libmints/mints.h>
-#include <libpsio/psio.hpp>
+#include <psi4/libplugin/plugin.h>
+#include <psi4/psi4-dec.h>
+#include <psi4/libmints/molecule.h>
+#include <psi4/libmints/basisset.h>
+#include <psi4/libmints/wavefunction.h>
+#include <psi4/libpsi4util/process.h>
 #include <nlopt.hpp>
-
-#include <boost/numeric/ublas/matrix.hpp>
-#include <boost/numeric/ublas/io.hpp>
 
 #include "vdwsurface.h"
 #include "potential.h"
 #include "respfit.h"
-#include "gitversion.hpp"
+//#include "gitversion.hpp"  TODO revive
 
 #define BOHR_TO_ANGSTROMS 0.52917721092
 #define CONSTRAINT_TOLERANCE 1e-8
 #define CHARGE_TOLERANCE 1e-8
 
 INIT_PLUGIN
-
-using namespace boost;
-using namespace boost::numeric;
 
 namespace psi{ namespace resp2 {
 
@@ -54,17 +46,12 @@ int read_options(std::string name, Options& options)
 
 
 extern "C"
-PsiReturnType resp2(Options& options) {
-    boost::shared_ptr<Wavefunction> wfn = Process::environment.wavefunction();
+SharedWavefunction resp2(SharedWavefunction wfn, Options& options) {
     if (!wfn) {
-        outfile->Printf("\n ---------------------------------------------------\n");
-        outfile->Printf(" You must first compute the wavefunction (scf) before\n");
-        outfile->Printf(" running the resp plugin\n");
-        outfile->Printf(" ---------------------------------------------------\n");
-            return Failure;
+        throw PSIEXCEPTION("\n ---------------------------------------------------\n You must first compute the wavefunction (scf) before\n running the resp plugin\n ---------------------------------------------------\n");
     }
 
-    boost::shared_ptr<Molecule> mol = wfn->basisset()->molecule();
+    std::shared_ptr<Molecule> mol = wfn->basisset()->molecule();
     int n_atoms = mol->natom();
 
     // Make sure that the charge groups are reasonable
@@ -101,7 +88,7 @@ PsiReturnType resp2(Options& options) {
     for (size_t i = 0; i < points.size(); i++)
         points[i] = points[i] / BOHR_TO_ANGSTROMS;
     // And then calculate the ESP values there
-    std::vector<double> esp_values = calculate_esp_at_points(points);
+    std::vector<double> esp_values = calculate_esp_at_points(wfn, points);
 
     // Build a matrix of the inverse distance from each ESP point to each nucleus
     ublas::matrix<double> invr (points.size(), n_atoms);
@@ -130,7 +117,7 @@ PsiReturnType resp2(Options& options) {
     // Print the parameters to disk
     outfile->Printf("\n ---------------------------------------------------\n");
     outfile->Printf(" RESTRAINED ELECTROSTATIC POTENTIAL PARAMETERS\n");
-    outfile->Printf(" RESP2 PLUGIN (GIT_VERSION %s)\n", GIT_VERSION);
+    //outfile->Printf(" RESP2 PLUGIN (GIT_VERSION %s)\n", GIT_VERSION);  // TODO revive
     outfile->Printf(" from https://github.com/rmcgibbo/resp2\n");
     outfile->Printf(" ---------------------------------------------------\n");
     outfile->Printf(" N_VDW_LAYERS:       %d\n", options.get_int("N_VDW_LAYERS"));
@@ -154,7 +141,7 @@ PsiReturnType resp2(Options& options) {
         outfile->Printf("   %5d    %2s     %8.5f\n", i+1, symbols[i].c_str(), charges[i]);
     outfile->Printf(" ----------------------------------------------\n");
 
-    return Success;
+    return wfn;
 }
 
 }} // End namespaces

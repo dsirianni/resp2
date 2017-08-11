@@ -2,7 +2,7 @@
 #define _vdwsurface_h
 
 #include <vector>
-#include "libmints/vector3.h"
+#include <psi4/libmints/vector3.h>
 
 using namespace std;
 using namespace psi;

@@ -12,7 +12,7 @@
 #include <set>
 
 #include "dotsphere.h"
-#include "libmints/vector3.h"
+#include <psi4/libmints/vector3.h>
 
 #ifndef M_PI
 #define M_PI 3.14159265358979323846

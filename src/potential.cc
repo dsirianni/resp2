@@ -1,16 +1,21 @@
-#include "Python.h"
-#include <liboptions/liboptions.h>
-#include <libmints/mints.h>
-#include <libpsio/psio.hpp>
+#include <psi4/libmints/molecule.h>
+#include <psi4/libmints/basisset.h>
+#include <psi4/libmints/wavefunction.h>
+#include <psi4/libmints/factory.h>
+#include <psi4/libmints/integral.h>
+#include <psi4/libmints/electrostatic.h>
+#include <psi4/libmints/oeprop.h>
+#include <psi4/libpsi4util/process.h>
+
+
 using namespace psi;
 
-std::vector<double> calculate_esp_at_points(std::vector<Vector3> points) {
-    boost::shared_ptr<Wavefunction> wfn = Process::environment.wavefunction();
-    boost::shared_ptr<BasisSet> basisset = wfn->basisset();
-    boost::shared_ptr<Molecule> mol = basisset->molecule();
-    boost::shared_ptr<IntegralFactory> integral_ = boost::shared_ptr<IntegralFactory>(new IntegralFactory(basisset, basisset, basisset, basisset));
-    boost::shared_ptr<ElectrostaticInt> epot(dynamic_cast<ElectrostaticInt*>(integral_->electrostatic()));
-    boost::shared_ptr<OEProp> oeprop = boost::shared_ptr<OEProp>(new OEProp());
+std::vector<double> calculate_esp_at_points(std::shared_ptr<Wavefunction> wfn, std::vector<Vector3> points) {
+    std::shared_ptr<BasisSet> basisset = wfn->basisset();
+    std::shared_ptr<Molecule> mol = basisset->molecule();
+    std::shared_ptr<IntegralFactory> integral_ = std::shared_ptr<IntegralFactory>(new IntegralFactory(basisset, basisset, basisset, basisset));
+    std::shared_ptr<ElectrostaticInt> epot(dynamic_cast<ElectrostaticInt*>(integral_->electrostatic()));
+    auto oeprop(std::make_shared<OEProp>(wfn));
 
     int n_atoms = mol->natom();
     int nbf = basisset->nbf();
@@ -43,7 +48,6 @@ std::vector<double> calculate_esp_at_points(std::vector<Vector3> points) {
         outfile->Printf("     %8.5f %8.5f %8.5f    %16.12f\n", points[i][0], points[i][1], points[i][2], nuc+elec);
     }
     outfile->Printf(" ---------------------------------------------------\n");
-    outfile->Flush();
 
     return esp_values;
 }
