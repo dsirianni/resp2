@@ -52,6 +52,8 @@ CMake Installation
 2. You'll need to install the nlopt library and its development headers
    * `conda install nlopt -c conda-forge`
    * If CMake doesn't find it, pass `cmake ... -DNLOPT_PREFIX=${CONDA_PREFIX}`
+3. Also, install Boost 
+   * `conda install boost`
 3. You need a C++11-capable compiler
    * psi4 plugin machinery should take care of this, as the g++ distributed w/psi4 works just fine
 4. Checkout this repository

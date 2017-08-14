@@ -36,16 +36,17 @@ list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 
 find_package(psi4 1.1 REQUIRED)
 find_package(NLOPT REQUIRED)
+find_package(Boost REQUIRED)
 
 add_psi4_plugin(resp2 src/dotsphere.cc
                       src/potential.cc
                       src/resp2.cc
                       src/respfit.cc
                       src/vdwsurface.cc)
-target_include_directories(resp2 PRIVATE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>)
+target_include_directories(resp2 PRIVATE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+                                 PRIVATE ${NLOPT_INCLUDE_DIRS}
+                                 PRIVATE ${Boost_INCLUDE_DIRS})
 
 target_link_libraries(resp2 PRIVATE "${NLOPT_LIBRARIES}")
 
 # may be needed
-#find_package(Boost REQUIRED)
-#target_include_directories(resp2 ${Boost_INCLUDE_DIRS})
